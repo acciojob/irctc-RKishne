@@ -37,7 +37,7 @@ public class TrainService {
         List<Station> stationList=trainEntryDto.getStationRoute();
 
         for(Station station:stationList){
-            trainRoute+=station;
+            trainRoute += station;
             if(stationList.size()>0){
                 trainRoute+=",";
             }
@@ -74,7 +74,7 @@ public class TrainService {
                 count++;
             }
         }
-        int availableSeats=totalNoOfSeats-count;
+        int availableSeats =totalNoOfSeats-count;
 
         return availableSeats;
     }
@@ -91,7 +91,7 @@ public class TrainService {
 
         for(int i=0;i<stations.length;i++){
             String station1=stations[i];
-            if(!station1.equals(station)){
+            if(!station1.equals(station.toString())){
                 throw new Exception("Train is not passing from this station");
             }
         }
@@ -120,7 +120,7 @@ public class TrainService {
         List<Ticket> ticketList=train.getBookedTickets();
         int oldestPassenger= 0;
         for(Ticket ticket:ticketList){
-            if(ticket.getFromStation().equals(fromStation) && ticket.getToStation().equals(toStation)){
+            if(ticket.getFromStation().toString().equals(fromStation.toString()) && ticket.getToStation().toString().equals(toStation.toString())){
                 List<Passenger> passengerList=ticket.getPassengersList();
                 for(Passenger passenger:passengerList){
                     if(passenger.getAge()>oldestPassenger){
@@ -145,7 +145,7 @@ public class TrainService {
         for(Train train:trainList){
             String []stations=train.getRoute().split(",");
             for(String station1:stations){
-                if(station1.equals(station)){
+                if(station1.equals(station.toString())){
                     LocalTime strTime=train.getDepartureTime();
                     LocalTime edTime=train.getDepartureTime().plusHours(1);
                     if((strTime.isAfter(startTime) || strTime.equals(startTime)) && (edTime.isBefore(endTime) || edTime.equals(endTime))){
