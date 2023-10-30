@@ -7,11 +7,8 @@ import com.driver.model.Station;
 import com.driver.model.Ticket;
 import com.driver.model.Train;
 import com.driver.repository.TrainRepository;
-import io.swagger.models.auth.In;
-import jdk.internal.icu.impl.Trie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -64,7 +61,7 @@ public class TrainService {
         //Inshort : a train has totalNo of seats and there are tickets from and to different locations
         //We need to find out the available seats between the given 2 stations.
         Train train=trainRepository.findById(seatAvailabilityEntryDto.getTrainId()).get();
-        Integer totalNoOfSeats=train.getNoOfSeats();
+        int totalNoOfSeats=train.getNoOfSeats();
 
         List<Ticket> ticketList=train.getBookedTickets();
 
@@ -74,7 +71,7 @@ public class TrainService {
                 count++;
             }
         }
-        int availableSeats =totalNoOfSeats-count;
+        int availableSeats = totalNoOfSeats-count;
 
         return availableSeats;
     }
@@ -120,7 +117,7 @@ public class TrainService {
         List<Ticket> ticketList=train.getBookedTickets();
         int oldestPassenger= 0;
         for(Ticket ticket:ticketList){
-            if(ticket.getFromStation().toString().equals(fromStation.toString()) && ticket.getToStation().toString().equals(toStation.toString())){
+            if(ticket.getFromStation().toString().equals(fromStation) && ticket.getToStation().toString().equals(toStation)){
                 List<Passenger> passengerList=ticket.getPassengersList();
                 for(Passenger passenger:passengerList){
                     if(passenger.getAge()>oldestPassenger){
