@@ -102,8 +102,8 @@ public class TrainService {
         String[] stations = train.getRoute().split(",");
         boolean found = false;
 
-        for (String station : stations) {
-            if (station.equals(reqStation)) {
+        for (String station1 : stations) {
+            if (station1.equals(reqStation)) {
                 found = true;
                 break;
             }
