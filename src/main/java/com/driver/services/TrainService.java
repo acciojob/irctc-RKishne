@@ -101,11 +101,17 @@ public class TrainService {
         String trainRoute=train.getRoute();
         String []stations=trainRoute.split(",");
 
-        for(int i=0;i<stations.length;i++){
-            String station1=stations[i];
-            if(!station1.equals(station.toString())){
-                throw new Exception("Train is not passing from this station");
+        boolean found=false;
+
+        for(String station1:stations)
+        {
+            if(station1.equals(station.toString())){
+                found=true;
+                break;
             }
+        }
+        if(found==true){
+            throw new Exception("Train is not passing from this station");
         }
         int count=0;
         List<Ticket> ticketList=train.getBookedTickets();
