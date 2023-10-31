@@ -99,11 +99,11 @@ public class TrainService {
         //  in a happy case we need to find out the number of such people.
         Train train = trainRepository.findById(trainId).get();
         String reqStation = station.toString();
-        String[] arr = train.getRoute().split(",");
+        String[] stations = train.getRoute().split(",");
         boolean found = false;
 
-        for (String s : arr) {
-            if (s.equals(reqStation)) {
+        for (String station : stations) {
+            if (station.equals(reqStation)) {
                 found = true;
                 break;
             }
