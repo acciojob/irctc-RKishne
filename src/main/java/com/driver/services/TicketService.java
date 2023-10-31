@@ -42,53 +42,60 @@ public class TicketService {
         //Save the bookedTickets in the train Object
         //Also in the passenger Entity change the attribute bookedTickets by using the attribute bookingPersonId.
        //And the end return the ticketId that has come from db
-        Optional<Passenger> optionalPassenger=passengerRepository.findById(bookTicketEntryDto.getBookingPersonId());
-
-        if (!optionalPassenger.isPresent()) {
-            throw new Exception("Booking Person is not found in system. Please first sing up from the app.");
-        }
-        Passenger passenger=optionalPassenger.get();
-        List<Integer> list=bookTicketEntryDto.getPassengerIds();
-
-        List<Passenger> passengerList=new ArrayList<>();
-
-        for(Integer id:list){
-            Passenger passenger1=passengerRepository.findById(id).get();
-            passengerList.add(passenger1);
-        }
-
         Train train=trainRepository.findById(bookTicketEntryDto.getTrainId()).get();
+        int bookedSeats=0;
+        List<Ticket>booked=train.getBookedTickets();
+        for(Ticket ticket:booked){
+            bookedSeats+=ticket.getPassengersList().size();
+        }
 
-        int totalNoOfSeats=train.getNoOfSeats();
-        List<Ticket> ticketList=train.getBookedTickets();
-
-        int AvailableSeats=totalNoOfSeats-ticketList.size();
-
-        if(AvailableSeats-bookTicketEntryDto.getNoOfSeats()<0){
+        if(bookedSeats+bookTicketEntryDto.getNoOfSeats()> train.getNoOfSeats()){
             throw new Exception("Less tickets are available");
         }
-        String []stations=train.getRoute().split(",");
-        int cnt=0;
 
-        for(String station:stations){
-            if(station.equals(bookTicketEntryDto.getFromStation()) || station.equals(bookTicketEntryDto.getToStation())){
-                cnt++;
+        String stations[]=train.getRoute().split(",");
+        List<Passenger>passengerList=new ArrayList<>();
+        List<Integer>ids=bookTicketEntryDto.getPassengerIds();
+        for(int id: ids){
+            passengerList.add(passengerRepository.findById(id).get());
+        }
+        int x=-1,y=-1;
+        for(int i=0;i<stations.length;i++){
+            if(bookTicketEntryDto.getFromStation().toString().equals(stations[i])){
+                x=i;
+                break;
             }
         }
-        int fare=300;
-        int totalFare=(cnt-1)*fare;
-
+        for(int i=0;i<stations.length;i++){
+            if(bookTicketEntryDto.getToStation().toString().equals(stations[i])){
+                y=i;
+                break;
+            }
+        }
+        if(x==-1||y==-1||y-x<0){
+            throw new Exception("Invalid stations");
+        }
         Ticket ticket=new Ticket();
         ticket.setPassengersList(passengerList);
         ticket.setFromStation(bookTicketEntryDto.getFromStation());
         ticket.setToStation(bookTicketEntryDto.getToStation());
-        ticket.setTotalFare(totalFare);
+
+        int fair=0;
+        fair=bookTicketEntryDto.getNoOfSeats()*(y-x)*300;
+
+        ticket.setTotalFare(fair);
         ticket.setTrain(train);
 
-        trainRepository.save(train);
-        ticket=ticketRepository.save(ticket);
+        train.getBookedTickets().add(ticket);
+        train.setNoOfSeats(train.getNoOfSeats()-bookTicketEntryDto.getNoOfSeats());
 
-       return ticket.getTicketId();
+        Passenger passenger=passengerRepository.findById(bookTicketEntryDto.getBookingPersonId()).get();
+        passenger.getBookedTickets().add(ticket);
+
+        trainRepository.save(train);
+
+        return ticketRepository.save(ticket).getTicketId();
+
 
     }
 }
