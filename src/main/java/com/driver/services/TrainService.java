@@ -33,10 +33,11 @@ public class TrainService {
 
         List<Station> stationList=trainEntryDto.getStationRoute();
 
-        for(Station station:stationList){
-            trainRoute += station;
-            if(stationList.size()>0){
-                trainRoute+=",";
+        for (int i = 0; i < stationList.size(); i++) {
+            if (i == stationList.size() - 1) {
+                trainRoute += stationList.get(i);
+            } else {
+                trainRoute += stationList.get(i) + ",";
             }
         }
 
@@ -95,7 +96,7 @@ public class TrainService {
         int count=0;
         List<Ticket> ticketList=train.getBookedTickets();
         for(Ticket ticket:ticketList){
-            if(ticket.getToStation().equals(station)){
+            if(ticket.getToStation().toString().equals(station.toString())){
                 count+=ticket.getPassengersList().size();
             }
         }
@@ -108,25 +109,18 @@ public class TrainService {
         //Throughout the journey of the train between any 2 stations
         //We need to find out the age of the oldest person that is travelling the train
         //If there are no people travelling in that train you can return 0
-        Train train=trainRepository.findById(trainId).get();
+        Train train = trainRepository.findById(trainId).get();
+        int age = Integer.MIN_VALUE;
+        if (train.getBookedTickets().size() == 0) return 0;
+        List<Ticket> ticketList = train.getBookedTickets();
 
-        String []stations=train.getRoute().split(",");
-        String fromStation=stations[0];
-        String toStation=stations[stations.length-1];
-
-        List<Ticket> ticketList=train.getBookedTickets();
-        int oldestPassenger= 0;
-        for(Ticket ticket:ticketList){
-            if(ticket.getFromStation().toString().equals(fromStation) && ticket.getToStation().toString().equals(toStation)){
-                List<Passenger> passengerList=ticket.getPassengersList();
-                for(Passenger passenger:passengerList){
-                    if(passenger.getAge()>oldestPassenger){
-                        oldestPassenger=passenger.getAge();
-                    }
-                }
+        for (Ticket ticket : ticketList) {
+            List<Passenger> passengerList = ticket.getPassengersList();
+            for (Passenger passenger : passengerList) {
+                age = Math.max(age, passenger.getAge());
             }
         }
-        return oldestPassenger;
+        return age;
     }
 
     public List<Integer> trainsBetweenAGivenTime(Station station, LocalTime startTime, LocalTime endTime){
